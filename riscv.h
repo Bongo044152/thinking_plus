@@ -135,14 +135,14 @@ r_mtval()
   return x;
 }
 
-// enable device interrupts
+// enable interrupts
 static inline void
 intr_on()
 {
   w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 
-// disable device interrupts
+// disable interrupts
 static inline void
 intr_off()
 {

@@ -13,7 +13,7 @@
 #define PLIC_SCLAIM                 (PLIC + 0x200004)
 
 void init_plic(void);
-int claim(void);
-void complete(int irq);
+uint32 plic_claim(void);
+void plic_complete(int irq);
 
 #endif // PLIC_H

@@ -9,8 +9,16 @@ CFLAGS  = -march=rv32imac_zicsr -mabi=ilp32 -mcmodel=medany \
           -MMD -MF $@.d
 
 LD      = thinking_board.ld
-SRCS_C  = gpio.c main.c plic.c start.c trap.c
+SRCS_C  = \
+	gpio.c	\
+	main.c 	\
+	plic.c 	\
+	start.c \
+	trap.c	\
+	uart.c
+
 SRCS_S  = entry.S
+HDRS    = $(wildcard *.h)
 OBJS    = $(SRCS_C:.c=.o) $(SRCS_S:.S=.o)
 DEPS    = $(OBJS:.o=.o.d)
 
@@ -32,6 +40,13 @@ $(TARGET).hex: $(TARGET).elf
 
 flash: $(TARGET).hex
 	cp $< $(MOUNT)
+
+format:
+	@if command -v clang-format > /dev/null 2>&1; then \
+		clang-format -i $(SRCS_C) $(HDRS); \
+	else \
+		echo "clang-format not found"; \
+	fi
 
 clean:
 	rm -f *.o *.elf *.hex *.d

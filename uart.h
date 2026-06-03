@@ -5,9 +5,9 @@
 
 #include "memory_layout.h"
 
-void uartinit(void);
+void init_uart(void);
 
-void uartputc_sync(int c);
+void uartputc_sync(char c);
 
 int uart_putc(char c);  // immediately put, return 1 when accept
 

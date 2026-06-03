@@ -1,14 +1,15 @@
 
 #include "type.h"
 #include "uart.h"
+#include "gpio.h"
 
 // the UART control registers are memory-mapped
 // at address UART0. this macro returns the
 // address of one of the registers.
 #define Reg(reg) ((volatile unsigned char *)(UART0 + (reg)))
 
-#define ReadReg(reg) (*(Reg(reg)))
-#define WriteReg(reg, v) (*(Reg(reg)) = (v))
+#define ReadReg(reg) (*((volatile uint32 *)Reg(reg)))
+#define WriteReg(reg, v) (*( (volatile uint32 *) Reg(reg)) = (v))
 
 // the UART control registers.
 // some have different meanings for read vs write.
@@ -20,7 +21,7 @@
 #define TXC_EN      0x1     // Transmit enable
 #define RXC         0x0c    // Receive control register
 #define RXC_EN      0x1     // Receive enable
-#define RXC_WL    (4 << 16) // Receive watermark level
+#define RXC_WL(x)   ((x) << 16) // Receive watermark level
 #define IE          0x10    // UART interrupt enable
 // #define IE_TXWM     0b01    // Transmit watermark interrupt enable
 #define IE_RXWM     0b10    // Receive watermark interrupt enable
@@ -28,7 +29,7 @@
 #define DIV         0x18    // Baud rate divisor
 
 void
-uartinit(void)
+init_uart(void)
 {
     // disable interrupts.
     WriteReg(IE, 0x00);
@@ -39,14 +40,16 @@ uartinit(void)
     // Transmit enable, 1 stop bit
     WriteReg(TXC, TXC_EN);
 
-    // Receive enable, watermark level = 4
-    WriteReg(RXC, RXC_EN | RXC_WL);
+    // Receive enable, watermark level = 0
+    WriteReg(RXC, RXC_EN | RXC_WL(0));
 
     // enable interrupts
     WriteReg(IE, IE_RXWM);
 }
 
-// Datasheet 18.4
+// Datasheet §18.4
+// tries to enqueue char into TX FIFO
+// returns 1 if accepted, 0 if FIFO full
 int uart_putc(char c) {
     volatile uint32 *txdata = (uint32 *)Reg(THR);
     uint32 ret;
@@ -55,12 +58,11 @@ int uart_putc(char c) {
         : "r"(txdata), "r"((uint32)c)
         : "memory");
     return !((ret >> 31) & 1); // 1 = full, char not accepted
-    // return 1 when successed, 0 otherwise
 }
 
-// Datasheet 18.5
-// this function try to get char as much as possible
-// return 1 read successed, 0 otherwise
+// Datasheet §18.5
+// tries to dequeue one char from RX FIFO
+// returns 1 if got a byte, 0 if FIFO empty
 int uartgetc(char *ch)
 {
     uint32 value = ReadReg(RHR);
@@ -73,5 +75,39 @@ int uartgetc(char *ch)
     return 0;
 }
 
-// TODO:
-#error "PLIC 要初始化"
+// this function try to put the char unless it succeed
+// same as "busy put"
+void uartputc_sync(char c)
+{
+    while(!uart_putc(c))
+        ;
+}
+
+// UART0 interrupt handler.
+// Receives one-byte commands from the remote to drive local GPIO pins.
+//
+// Message format: [ X(7:5) | port(4:1) | v(0) ]
+//   port : GPIO pin number to set
+//   v    : 1 = high, 0 = low
+//   X    : don't care
+//
+// Accepted pins: 0, 1, 2, 9, 10, 11
+void uartintr(void)
+{
+    char command;
+
+    while(!uartgetc(&command))
+        ;
+
+    // unpack port and value from the byte
+    int p = (int) ((command >> 1) & 0xf);
+    int v = command & 1;
+
+    const int pin_list[] = {0, 1, 2, 9, 10, 11};
+    for(int i=0; i<NELE(pin_list); ++i) {
+        if(pin_list[i] == p) {
+            gpio_pin_set(p, v);
+            break;
+        }
+    }
+}
