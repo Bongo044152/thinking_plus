@@ -91,7 +91,7 @@ void uartputc_sync(char c)
 //   v    : 1 = high, 0 = low
 //   X    : don't care
 //
-// Accepted pins: 0, 1, 2, 9, 10, 11
+// Accepted pins: 1, 2, 9, 10, 11
 void uartintr(void)
 {
     char command;
@@ -103,7 +103,7 @@ void uartintr(void)
     int p = (int) ((command >> 1) & 0xf);
     int v = command & 1;
 
-    const int pin_list[] = {0, 1, 2, 9, 10, 11};
+    const int pin_list[] = {1, 2, 9, 10, 11};
     for(int i=0; i<NELE(pin_list); ++i) {
         if(pin_list[i] == p) {
             gpio_pin_set(p, v);
