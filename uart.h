@@ -1,4 +1,5 @@
-// github reference code: https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/uart.c
+// github reference code:
+// https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/uart.c
 
 #ifndef UART_H
 #define UART_H

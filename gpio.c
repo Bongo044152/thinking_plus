@@ -1,13 +1,12 @@
 #include "gpio.h"
 #include "type.h"
 
-void init_gpio()
+void
+init_gpio()
 {
     // init pin
-    const int pin_list[] = {
-        // 0, 
-        1, 2, 9, 10, 11};
-    for(int i=0; i<NELE(pin_list); ++i) {
+    const int pin_list[] = {1, 2, 9, 10, 11};
+    for (int i = 0; i < NELE(pin_list); ++i) {
         gpio_output_enable(pin_list[i]);
     }
 
