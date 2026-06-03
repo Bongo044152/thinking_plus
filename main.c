@@ -18,7 +18,7 @@ main()
 
     // enable pin0 as start single
     gpio_output_enable(0);
-    gpio_pin_lo(0);
+    gpio_pin_hi(0);
 
     // interrupt on
     intr_on();

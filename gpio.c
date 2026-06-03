@@ -10,6 +10,10 @@ init_gpio()
         gpio_output_enable(pin_list[i]);
     }
 
+    // uart debug pin
+    gpio_output_enable(22);
+    gpio_pin_lo(22);
+
     // enable io function port at specific port 16, 17
     // 16: UART0 RX
     // 17: UART0 TX

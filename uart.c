@@ -35,7 +35,7 @@ init_uart(void)
     // disable interrupts.
     WriteReg(IE, 0x00);
 
-    // set baud rate.
+    // set baud rate to 115200s
     WriteReg(DIV, 1301);
 
     // Transmit enable, 1 stop bit
@@ -100,6 +100,7 @@ uartputc_sync(char c)
 void
 uartintr(void)
 {
+    gpio_pin_toggle(22);
     char command;
 
     while (!uartgetc(&command))

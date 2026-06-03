@@ -23,12 +23,12 @@ init_plic(void)
 uint32
 plic_claim(void)
 {
-    uint32 irq = *(uint32 *) PLIC_SCLAIM;
+    uint32 irq = *(volatile uint32 *) PLIC_SCLAIM;
     return irq;
 }
 
 void
 plic_complete(int irq)
 {
-    *(uint32 *) PLIC_SCLAIM = irq;
+    *(volatile uint32 *) PLIC_SCLAIM = irq;
 }

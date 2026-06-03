@@ -75,6 +75,15 @@ gpio_pin_set(const int pin_num, const int v)
 }
 
 static inline void
+gpio_pin_toggle(const int pin_num)
+{
+    if (0 <= pin_num && pin_num < NGPIO) {
+        const int v = (GPIO_OUTPUT_VAL >> pin_num) & 1;
+        gpio_pin_set(pin_num, !v);
+    }
+}
+
+static inline void
 gpio_output_enable(const int pin_num)
 {
     if (0 <= pin_num && pin_num < NGPIO)

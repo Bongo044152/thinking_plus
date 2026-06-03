@@ -36,7 +36,7 @@ devintr(void)
         plic_complete(irq);
         return irq;
     }
-    return 0;
+    panic();
 }
 
 __attribute__((noreturn)) void
@@ -44,6 +44,7 @@ panic(void)
 {
     gpio_output_enable(23);
     gpio_pin_hi(23);
+    gpio_pin_lo(0);
     while (1)
         ;  // spin ...
 }

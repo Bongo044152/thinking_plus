@@ -11,3 +11,5 @@ _entry:
         call start
 spin:
         j spin
+
+// TODO: CRT 寫完整 + ld 要改
