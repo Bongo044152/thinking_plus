@@ -2,3 +2,4 @@
 *.elf
 *.hex
 *.d
+.gdb_history

@@ -47,6 +47,12 @@ $(TARGET).hex: $(TARGET).elf
 flash: $(TARGET).hex
 	cp $< $(MOUNT)
 
+openocd:
+	openocd -f sifive-hifive1-revb.cfg
+
+gdb: $(TARGET).elf
+	riscv32-unknown-elf-gdb $< -ex "target extended-remote :3333"
+
 format:
 	@if command -v clang-format > /dev/null 2>&1; then \
 		clang-format -i $(SRCS_C) $(HDRS); \
