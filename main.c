@@ -1,4 +1,4 @@
-// NOTE: 1 core mechine, single process
+// NOTE: 1 core machine, single process
 
 #include "gpio.h"
 #include "plic.h"
@@ -14,9 +14,9 @@ main()
     init_trap();
     init_uart();
 
-    __sync_synchronize();  // strong memory barrier
+    __sync_synchronize();  // memory barrier
 
-    // enable pin0 as start single
+    // enable pin0 as start signal
     gpio_output_enable(0);
     gpio_pin_hi(0);
 

@@ -44,8 +44,8 @@ w_mstatus(uint32 x)
 
 // Machine-mode Interrupt Enable
 
-#define MIE_SEIE (1L << 11)  // external
-#define MIE_STIE (1L << 7)   // timer
+#define MIE_MEIE (1L << 11)  // Machine External Interrupt Enable
+#define MIE_MTIE (1L << 7)   // Machine Timer Interrupt Enable
 
 static inline uint32
 r_mie()
@@ -95,7 +95,7 @@ w_mtimecmp(uint64 cmp_v)
     // https://docs.riscv.org/reference/isa/priv/machine.html#3-1-2-machine-level-memory-mapped-registers
     uint32 *mtimecmp = (uint32 *) MTIMECMP;
 
-    uint32 bound = -1;  // 0xfff...
+    uint32 bound = -1;  // 0xFFFFFFFF
     *mtimecmp = bound;  // no smaller than old value
     uint32 lo = (uint32) cmp_v, hi = cmp_v >> 32;
     *(mtimecmp + 1) = hi;  // no smaller than new value

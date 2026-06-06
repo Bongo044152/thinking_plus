@@ -1,34 +1,34 @@
 #include "plic.h"
 #include "type.h"
 
+// Datasheet §10.2 Table 24
+#define UART0_IRQ    3
+
 void
 init_plic(void)
 {
-    // disable interrupt
+    // disable all interrupt
     *(uint32 *) PLIC_ENABLE_BASE = 0;
     *(uint32 *) (PLIC_ENABLE_BASE + 4) = 0;
 
     // setup priority threshold
-    *(uint32 *) PLIC_THRESHILD = 0;  // handel all interrupt
+    *(uint32 *) PLIC_THRESHILD = 0;  // handle all interrupt
 
     /*             UART0 interrupt             */
 
-    // enable uart0 interrupt (for this cpu)
-    *(uint32 *) PLIC_ENABLE_BASE = (1 << 3);
-
-    // interrupt priority (for this cpu)
-    PLIC_SOURCE_PRIORITY(3 /* UART0 source */) = 1;
+    *(uint32 *) PLIC_ENABLE_BASE = *(uint32 *)PLIC_ENABLE_BASE | (1 << UART0_IRQ);
+    PLIC_SOURCE_PRIORITY(UART0_IRQ) = 1;
 }
 
 uint32
 plic_claim(void)
 {
-    uint32 irq = *(volatile uint32 *) PLIC_SCLAIM;
+    uint32 irq = *(volatile uint32 *) PLIC_MCLAIM;
     return irq;
 }
 
 void
 plic_complete(int irq)
 {
-    *(volatile uint32 *) PLIC_SCLAIM = irq;
+    *(volatile uint32 *) PLIC_MCLAIM = irq;
 }

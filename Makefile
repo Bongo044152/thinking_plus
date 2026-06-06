@@ -1,14 +1,14 @@
-TARGET  = firmware
+TARGET  = think_plus
 CC      = riscv32-unknown-elf-gcc
 OBJCOPY = riscv32-unknown-elf-objcopy
 
 # 筆記： 距離算法 -mcmodel 很重要！ 你需要檢查那些距離你很遠的位置
 CFLAGS  = -march=rv32imac_zicsr -mabi=ilp32 -mcmodel=medany \
-          -fvisibility=hidden -nostdlib -nostartfiles \
+          -fvisibility=hidden -O2 -nostdlib -nostartfiles \
           -static -Wno-int-conversion \
           -MMD -MF $@.d
 
-LD      = thinking_board.ld
+LD      = think_plus.ld
 SRCS_C  = \
 	gpio.c	\
 	main.c 	\
@@ -22,7 +22,13 @@ HDRS    = $(wildcard *.h)
 OBJS    = $(SRCS_C:.c=.o) $(SRCS_S:.S=.o)
 DEPS    = $(OBJS:.o=.o.d)
 
-MOUNT   = /run/media/bongo/HiFive
+MOUNT   = ~/Desktop/usb
+
+DEBUG   ?= no
+
+ifeq ($(DEBUG),yes)
+	CFLAGS += -g
+endif
 
 all: $(TARGET).hex
 

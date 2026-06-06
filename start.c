@@ -1,7 +1,5 @@
 #include "riscv.h"
 
-#define MIE_MEIE (1 << 11)  // Machine External Interrupt Enable
-
 __attribute__((aligned(16))) char stack0[4096];
 
 void mvec();
@@ -10,7 +8,7 @@ void main();
 void
 start()
 {
-    // init trap handlar
+    // init trap handler
     w_mtvec(mvec);
 
     // enable Machine External Interrupt

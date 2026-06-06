@@ -30,3 +30,5 @@ SECTIONS
 
     . = ALIGN(4);
 }
+
+# TODO: CRT 的位置要先分配正確

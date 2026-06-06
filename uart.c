@@ -1,6 +1,7 @@
 
 #include "uart.h"
 #include "gpio.h"
+#include "trap.h"
 #include "type.h"
 
 // the UART control registers are memory-mapped
@@ -35,8 +36,9 @@ init_uart(void)
     // disable interrupts.
     WriteReg(IE, 0x00);
 
-    // set baud rate to 115200s
-    WriteReg(DIV, 1301);
+    // set baud rate: tlclk = 16MHz
+    // baud = tlclk / (DIV+1) = 16e6 / 139 = 115107 (預期 115200 ； 誤差 -0.08%)
+    WriteReg(DIV, 138);
 
     // Transmit enable, 1 stop bit
     WriteReg(TXC, TXC_EN);
@@ -48,7 +50,8 @@ init_uart(void)
     WriteReg(IE, IE_RXWM);
 }
 
-// Datasheet §18.4
+// Datasheet §18.4 — amoor.w is the recommended way to write txdata;
+// the full-bit (bit31) of the returned old value indicates FIFO state.
 // tries to enqueue char into TX FIFO
 // returns 1 if accepted, 0 if FIFO full
 int
@@ -69,7 +72,7 @@ uart_putc(char c)
 int
 uartgetc(char *ch)
 {
-    uint32 value = ReadReg(RHR);
+    uint32 value = ReadReg(RHR);  // address: 0x10013004
 
     // if not empty
     if (!(value >> 31)) {
@@ -79,8 +82,7 @@ uartgetc(char *ch)
     return 0;
 }
 
-// this function try to put the char unless it succeed
-// same as "busy put"
+// blocks until the char is accepted by TX FIFO ("busy put")
 void
 uartputc_sync(char c)
 {
@@ -96,13 +98,14 @@ uartputc_sync(char c)
 //   v    : 1 = high, 0 = low
 //   X    : don't care
 //
-// Accepted pins: 1, 2, 9, 10, 11
+// Accepted pins: 1, 2
 void
 uartintr(void)
 {
-    gpio_pin_toggle(22);
     char command;
 
+    // this interrupt fires only when RX FIFO has data, so the first getc should
+    // succeed
     while (!uartgetc(&command))
         ;
 
@@ -110,11 +113,9 @@ uartintr(void)
     int p = (int) ((command >> 1) & 0xf);
     int v = command & 1;
 
-    const int pin_list[] = {1, 2, 9, 10, 11};
-    for (int i = 0; i < NELE(pin_list); ++i) {
-        if (pin_list[i] == p) {
-            gpio_pin_set(p, v);
-            break;
-        }
-    }
+    // 只接受 pin1/pin2，沒 match 到一律 panic
+    if (p == 1 || p == 2)
+        gpio_pin_set(p, v);
+    else
+        panic();
 }

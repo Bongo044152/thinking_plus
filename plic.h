@@ -9,8 +9,9 @@
 #define PLIC_ENABLE_BASE (PLIC + 0x2000)
 
 // value: 7 ~ 0
+// context 0 = M-mode hart 0 (the only context on FE310)
 #define PLIC_THRESHILD (PLIC + 0x200000)
-#define PLIC_SCLAIM (PLIC + 0x200004)
+#define PLIC_MCLAIM (PLIC + 0x200004)
 
 void init_plic(void);
 uint32 plic_claim(void);

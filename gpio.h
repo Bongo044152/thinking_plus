@@ -44,7 +44,8 @@
 
 #define GPIO_PIN_MASK(pin_num) (1 << pin_num)
 
-// suggest SOP: claim -> copy *ip -> W1C -> handel -> complete
+// suggested GPIO interrupt SOP: plic_claim -> read *_ip -> W1C *_ip -> handle
+// -> plic_complete
 
 static inline void
 gpio_pin_hi(const int pin_num)
