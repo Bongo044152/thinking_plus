@@ -9,3 +9,8 @@
 - 目前各模組高度耦合（例如 `uart.h` 拉進了 `gpio.h`、`trap.h`）
 - 梳理 include 依賴，讓標頭檔反映實際耦合關係
 - 考慮將 MMIO 暫存器定義與函式宣告分開
+
+## Panic 與 Printf 與 UART
+- panic 現在只能點亮 led 燈，我們需要詳細的輸出訊息（透過 UART1）
+- 我們需要 `printf` 來實現格式化輸出的需求
+- UART 部份目前只有實做 `UART0`，需要擴充
