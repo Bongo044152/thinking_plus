@@ -2,7 +2,7 @@
 #include "type.h"
 
 // Datasheet §10.2 Table 24
-#define UART0_IRQ    3
+#define UART0_IRQ 3
 
 void
 init_plic(void)
@@ -16,7 +16,8 @@ init_plic(void)
 
     /*             UART0 interrupt             */
 
-    *(uint32 *) PLIC_ENABLE_BASE = *(uint32 *)PLIC_ENABLE_BASE | (1 << UART0_IRQ);
+    *(uint32 *) PLIC_ENABLE_BASE =
+        *(uint32 *) PLIC_ENABLE_BASE | (1 << UART0_IRQ);
     PLIC_SOURCE_PRIORITY(UART0_IRQ) = 1;
 }
 
