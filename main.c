@@ -6,6 +6,8 @@
 #include "trap.h"
 #include "uart.h"
 
+int x;  // sbss?
+
 __attribute__((noreturn)) void
 main()
 {

@@ -21,8 +21,6 @@ SECTIONS
     __data_load = .;
 
     .data : AT(__data_load) {
-        # data locate at dtim
-
         __data_start = .;
         *(.data*)
         *(.sdata*)
@@ -31,10 +29,10 @@ SECTIONS
 
     . = ALIGN(4);
 
-    .bss : {
+    .bss (NOLOAD) : {
         __bss_start = .;
         *(.bss*)
-        *(COMMON)
+        *(.sbss*)
         __bss_end = .;
     } > dtim
 

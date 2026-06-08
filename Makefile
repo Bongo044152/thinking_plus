@@ -33,7 +33,7 @@ endif
 all: $(TARGET).hex
 
 $(TARGET).elf: $(OBJS)
-	$(CC) $(CFLAGS) -T$(LD) $^ -o $@
+	$(CC) $(CFLAGS) -T$(LD) -Wl,-Map=$(TARGET).map $^ -o $@
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -61,6 +61,6 @@ format:
 	fi
 
 clean:
-	rm -f *.o *.elf *.hex *.d
+	rm -f *.o *.elf *.hex *.d *.map
 
 -include $(DEPS)
