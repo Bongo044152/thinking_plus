@@ -5,7 +5,7 @@ __attribute__((aligned(16))) char stack0[4096];
 void mvec();
 void main();
 
-void
+__attribute__((noreturn)) void
 start()
 {
     // init trap handler
@@ -16,4 +16,8 @@ start()
 
     // call main() in main.c
     main();
+
+    // spin here
+    while (1)
+        ;
 }

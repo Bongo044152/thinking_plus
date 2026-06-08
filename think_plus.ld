@@ -17,18 +17,24 @@ SECTIONS
 
     . = ALIGN(4);
 
-    .bss : {
-        *(.bss*)
-        *(COMMON)
+    # data load from flash memory
+    __data_load = .;
+
+    .data : AT(__data_load) {
+        __data_start = .;
+        *(.data*)
+        *(.sdata*)
+        __data_end = .;
     } > dtim
-    
+
     . = ALIGN(4);
 
-    .data : {
-        *(.data*)
+    .bss (NOLOAD) : {
+        __bss_start = .;
+        *(.bss*)
+        *(.sbss*)
+        __bss_end = .;
     } > dtim
 
     . = ALIGN(4);
 }
-
-# TODO: CRT 的位置要先分配正確
