@@ -1,8 +1,8 @@
+#include "dev.h"
 #include "riscv.h"
 
 __attribute__((aligned(16))) char stack0[4096];
 
-void mvec();
 void main();
 
 __attribute__((noreturn)) void

@@ -1,8 +1,15 @@
-#include "plic.h"
+#include "board.h"
+#include "memory_layout.h"
 #include "type.h"
 
-// Datasheet §10.2 Table 24
-#define UART0_IRQ 3
+// value: 7(hi) ~ 1(low), 0 = no interrupt
+#define PLIC_SOURCE_PRIORITY(id) (*(uint32 *) (PLIC + 4 * (id)))
+#define PLIC_ENABLE_BASE (PLIC + 0x2000)
+
+// value: 7 ~ 0
+// context 0 = M-mode hart 0 (the only context on FE310)
+#define PLIC_THRESHILD (PLIC + 0x200000)
+#define PLIC_MCLAIM (PLIC + 0x200004)
 
 void
 init_plic(void)
@@ -24,7 +31,7 @@ init_plic(void)
 uint32
 plic_claim(void)
 {
-    uint32 irq = *(volatile uint32 *) PLIC_MCLAIM;
+    const uint32 irq = *(volatile uint32 *) PLIC_MCLAIM;
     return irq;
 }
 

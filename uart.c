@@ -1,8 +1,4 @@
-
-#include "uart.h"
-#include "gpio.h"
-#include "trap.h"
-#include "type.h"
+#include "dev.h"
 
 // the UART control registers are memory-mapped
 // at address UART0. this macro returns the
@@ -72,7 +68,7 @@ uart_putc(char c)
 int
 uartgetc(char *ch)
 {
-    uint32 value = ReadReg(RHR);  // address: 0x10013004
+    const uint32 value = ReadReg(RHR);  // address: 0x10013004
 
     // if not empty
     if (!(value >> 31)) {
@@ -98,7 +94,7 @@ uartputc_sync(char c)
 //   v    : 1 = high, 0 = low
 //   X    : don't care
 //
-// Accepted pins: 1, 2
+// Accepted pins: PIN_UART_CONTROL
 void
 uartintr(void)
 {
@@ -110,11 +106,10 @@ uartintr(void)
         ;
 
     // unpack port and value from the byte
-    int p = (int) ((command >> 1) & 0xf);
-    int v = command & 1;
+    const int p = (int) ((command >> 1) & 0xf);
+    const int v = command & 1;
 
-    // 只接受 pin1/pin2，沒 match 到一律 panic
-    if (p == 1 || p == 2)
+    if (p == PIN_UART_CONTROL)
         gpio_pin_set(p, v);
     else
         panic();

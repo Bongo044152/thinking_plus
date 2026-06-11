@@ -1,10 +1,7 @@
 // NOTE: 1 core machine, single process
 
-#include "gpio.h"
-#include "plic.h"
+#include "dev.h"
 #include "riscv.h"
-#include "trap.h"
-#include "uart.h"
 
 __attribute__((noreturn)) void
 main()
@@ -17,13 +14,13 @@ main()
     __sync_synchronize();  // memory barrier
 
     // enable pin0 as start signal
-    gpio_output_enable(0);
-    gpio_pin_lo(0);
+    gpio_output_enable(PIN_START_SIG);
+    gpio_pin_lo(PIN_START_SIG);
 
     // interrupt on
     intr_on();
 
-    // goto the wait mode
+    // goto the waiting mode
     while (1)
         asm volatile("wfi");
 }
