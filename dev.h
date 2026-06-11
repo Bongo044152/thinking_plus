@@ -22,10 +22,11 @@ void panic(void) __attribute__((noreturn));
 
 // -- UART -- //
 
-void init_uart(void);
-void uartputc_sync(const char c);
-int uart_putc(char c);  // immediately put, return 1 when accept
-int uartgetc(char *ch);
-void uartintr(void);
+void init_uart(const uint64 uart);
+void uartputc_sync(const uint64 uart, const char c);
+int uart_putc(const uint64 uart,
+              const char c);  // immediately put, return 1 when accept
+int uartgetc(const uint64 uart, char *ch);
+void uartintr(const uint32 irq);
 
 #endif  // DEV_H

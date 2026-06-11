@@ -21,19 +21,20 @@ SECTIONS
     __data_load = .;
 
     .data : AT(__data_load) {
-        __data_start = .;
+        __data_start = ABSOLUTE(.);
         *(.data*)
         *(.sdata*)
-        __data_end = .;
+        __data_end = ABSOLUTE(.);
     } > dtim
 
     . = ALIGN(4);
 
     .bss (NOLOAD) : {
-        __bss_start = .;
+        __bss_start = ABSOLUTE(.);
         *(.bss*)
         *(.sbss*)
-        __bss_end = .;
+        *(COMMON)
+        __bss_end = ABSOLUTE(.);
     } > dtim
 
     . = ALIGN(4);

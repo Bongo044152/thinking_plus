@@ -9,12 +9,11 @@ main()
     init_plic();
     init_gpio();
     init_trap();
-    init_uart();
+    init_uart(UART0);
 
     __sync_synchronize();  // memory barrier
 
     // enable pin0 as start signal
-    gpio_output_enable(PIN_START_SIG);
     gpio_pin_lo(PIN_START_SIG);
 
     // interrupt on

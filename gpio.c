@@ -5,6 +5,7 @@ void
 init_gpio()
 {
     // output pins
+    gpio_output_enable(PIN_START_SIG);
     gpio_output_enable(PIN_UART_CONTROL);
     gpio_output_enable(PIN_PANIC_LED);
 
