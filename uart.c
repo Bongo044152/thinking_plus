@@ -1,16 +1,12 @@
-
-#include "uart.h"
-#include "gpio.h"
-#include "trap.h"
-#include "type.h"
+#include "dev.h"
 
 // the UART control registers are memory-mapped
 // at address UART0. this macro returns the
 // address of one of the registers.
-#define Reg(reg) ((volatile unsigned char *) (UART0 + (reg)))
+#define Reg(uart, reg) ((volatile unsigned char *) (uint32)((uart) + (reg)))
 
-#define ReadReg(reg) (*((volatile uint32 *) Reg(reg)))
-#define WriteReg(reg, v) (*((volatile uint32 *) Reg(reg)) = (v))
+#define ReadReg(uart, reg) (*((volatile uint32 *) Reg((uart), (reg))))
+#define WriteReg(uart, reg, v) (*((volatile uint32 *) Reg((uart), (reg))) = (v))
 
 // the UART control registers.
 // some have different meanings for read vs write.
@@ -31,23 +27,23 @@
 #define DIV 0x18      // Baud rate divisor
 
 void
-init_uart(void)
+init_uart(const uint64 uart)
 {
     // disable interrupts.
-    WriteReg(IE, 0x00);
+    WriteReg(uart, IE, 0x00);
 
     // set baud rate: tlclk = 16MHz
     // baud = tlclk / (DIV+1) = 16e6 / 139 = 115107 (預期 115200 ； 誤差 -0.08%)
-    WriteReg(DIV, 138);
+    WriteReg(uart, DIV, 138);
 
     // Transmit enable, 1 stop bit
-    WriteReg(TXC, TXC_EN);
+    WriteReg(uart, TXC, TXC_EN);
 
     // Receive enable, watermark level = 0
-    WriteReg(RXC, RXC_EN | RXC_WL(0));
+    WriteReg(uart, RXC, RXC_EN | RXC_WL(0));
 
     // enable interrupts
-    WriteReg(IE, IE_RXWM);
+    WriteReg(uart, IE, IE_RXWM);
 }
 
 // Datasheet §18.4 — amoor.w is the recommended way to write txdata;
@@ -55,9 +51,9 @@ init_uart(void)
 // tries to enqueue char into TX FIFO
 // returns 1 if accepted, 0 if FIFO full
 int
-uart_putc(char c)
+uart_putc(const uint64 uart, const char c)
 {
-    volatile uint32 *txdata = (uint32 *) Reg(THR);
+    volatile uint32 *txdata = (uint32 *) Reg(uart, THR);
     uint32 ret;
     asm volatile("amoor.w %0, %2, (%1)"
                  : "=r"(ret)
@@ -70,9 +66,9 @@ uart_putc(char c)
 // tries to dequeue one char from RX FIFO
 // returns 1 if got a byte, 0 if FIFO empty
 int
-uartgetc(char *ch)
+uartgetc(const uint64 uart, char *ch)
 {
-    uint32 value = ReadReg(RHR);  // address: 0x10013004
+    const uint32 value = ReadReg(uart, RHR);  // address: 0x10013004
 
     // if not empty
     if (!(value >> 31)) {
@@ -84,9 +80,9 @@ uartgetc(char *ch)
 
 // blocks until the char is accepted by TX FIFO ("busy put")
 void
-uartputc_sync(char c)
+uartputc_sync(const uint64 uart, const char c)
 {
-    while (!uart_putc(c))
+    while (!uart_putc(uart, c))
         ;
 }
 
@@ -98,24 +94,32 @@ uartputc_sync(char c)
 //   v    : 1 = high, 0 = low
 //   X    : don't care
 //
-// Accepted pins: 1, 2
+// Accepted pins: PIN_UART_CONTROL
 void
-uartintr(void)
+uart0intr(void)
 {
     char command;
 
     // this interrupt fires only when RX FIFO has data, so the first getc should
     // succeed
-    while (!uartgetc(&command))
+    while (!uartgetc(UART0, &command))
         ;
 
     // unpack port and value from the byte
-    int p = (int) ((command >> 1) & 0xf);
-    int v = command & 1;
+    const int p = (int) ((command >> 1) & 0xf);
+    const int v = command & 1;
 
-    // 只接受 pin1/pin2，沒 match 到一律 panic
-    if (p == 1 || p == 2)
+    if (p == PIN_UART_CONTROL)
         gpio_pin_set(p, v);
     else
         panic();
+}
+
+void
+uartintr(const uint32 irq)
+{
+    if (irq == UART0_IRQ)
+        uart0intr();
+    else
+        panic();  // unexcepted irq
 }

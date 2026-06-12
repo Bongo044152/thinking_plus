@@ -1,10 +1,6 @@
-#include "trap.h"
+#include "dev.h"
 #include "gpio.h"
-#include "plic.h"
 #include "riscv.h"
-#include "uart.h"
-
-#define UART0_IRQ 3
 
 void
 init_trap()
@@ -18,10 +14,11 @@ __attribute__((interrupt("machine"))) void
 mvec()
 {
     // handle interrupt
-    uint32 mcause;
-    if ((mcause = r_mcause()) == 0x8000000B /* Machine External Interrupt */) {
+    const uint32 mcause = r_mcause();
+    if (mcause == 0x8000000B /* Machine External Interrupt */) {
         devintr();
     } else {
+        // unknown trap
         panic();
     }
 }
@@ -34,7 +31,7 @@ devintr(void)
     const uint32 irq = plic_claim();
 
     if (irq == UART0_IRQ) {
-        uartintr();
+        uartintr(irq);
         plic_complete(irq);
         return irq;
     }
@@ -44,8 +41,7 @@ devintr(void)
 __attribute__((noreturn)) void
 panic(void)
 {
-    gpio_pin_hi(23);
-    gpio_pin_lo(0);
+    gpio_pin_hi(PIN_PANIC_LED);
     while (1)
         ;  // spin ...
 }
