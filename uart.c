@@ -100,19 +100,18 @@ uart0intr(void)
 {
     char command;
 
-    // this interrupt fires only when RX FIFO has data, so the first getc should
-    // succeed
-    while (!uartgetc(UART0, &command))
-        ;
+    // RX interrupt fires when the RX FIFO has data.
+    // Drain all available bytes before returning.
+    while (uartgetc(UART0, &command)) {
+        // unpack port and value from the byte
+        const int p = (int) ((command >> 1) & 0xf);
+        const int v = command & 1;
 
-    // unpack port and value from the byte
-    const int p = (int) ((command >> 1) & 0xf);
-    const int v = command & 1;
-
-    if (p == PIN_UART_CONTROL)
-        gpio_pin_set(p, v);
-    else
-        panic();
+        if (p == PIN_UART_CONTROL)
+            gpio_pin_set(p, v);
+        else
+            panic();
+    }
 }
 
 void
