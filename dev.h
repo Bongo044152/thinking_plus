@@ -27,6 +27,6 @@ void uartputc_sync(const uint64 uart, const char c);
 int uart_putc(const uint64 uart,
               const char c);  // immediately put, return 1 when accept
 int uartgetc(const uint64 uart, char *ch);
-void uartintr(const uint32 irq);
+void uart0intr(void);
 
 #endif  // DEV_H
