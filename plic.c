@@ -8,7 +8,7 @@
 
 // value: 7 ~ 0
 // context 0 = M-mode hart 0 (the only context on FE310)
-#define PLIC_THRESHILD (PLIC + 0x200000)
+#define PLIC_THRESHOLD (PLIC + 0x200000)
 #define PLIC_MCLAIM (PLIC + 0x200004)
 
 void
@@ -19,7 +19,7 @@ init_plic(void)
     *(uint32 *) (PLIC_ENABLE_BASE + 4) = 0;
 
     // setup priority threshold
-    *(uint32 *) PLIC_THRESHILD = 0;  // handle all interrupt
+    *(uint32 *) PLIC_THRESHOLD = 0;  // handle all interrupt
 
     /*             UART0 interrupt             */
 
