@@ -1,5 +1,4 @@
 #include "dev.h"
-#include "gpio.h"
 #include "riscv.h"
 
 void
