@@ -31,7 +31,7 @@ devintr(void)
     const uint32 irq = plic_claim();
 
     if (irq == UART0_IRQ) {
-        uartintr(irq);
+        uart0intr();
         plic_complete(irq);
         return irq;
     }

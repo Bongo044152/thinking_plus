@@ -113,12 +113,3 @@ uart0intr(void)
             panic();
     }
 }
-
-void
-uartintr(const uint32 irq)
-{
-    if (irq == UART0_IRQ)
-        uart0intr();
-    else
-        panic();  // unexcepted irq
-}
